@@ -64,7 +64,49 @@ Please fill out this table about API keys used in code. (Some parts are already 
 | Who are the potential recipients of the information? | Intended recipient: the API server<br />Unintended recipient(s): YOUR ANSWER HERE |
 | What principles govern the collection and transmission of the information? | YOUR ANSWER HERE |
 
+
+| Question                                                                   | Answer                                                                                                                                                                                                                                                                                                           |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What type of information is shared?                                        | API key                                                                                                                                                                                                                                                                                                          |
+| Who is the subject of the information?                                     | The programmer / code that's making API calls                                                                                                                                                                                                                                                                    |
+| Who is the sender of the information?                                      | The programmer                                                                                                                                                                                                                                                                                                   |
+| Who are the potential recipients of the information?                       | Intended recipient: the API server<br/>Unintended recipient(s): anyone who can view the repo/history (e.g., on GitHub or forks), automated crawlers/secret-harvesting bots, CI/CD logs/services, search engines/archives, mirrors/backups, and services that ingest public code (including some model trainers). |
+| What principles govern the collection and transmission of the information? | Data minimization & purpose limitation; least privilege with scope-limited keys; secure transport (TLS); secure storage (env vars/secrets manager); avoid logging secrets; access control & auditing; short lifetimes/rotation & revocation; keep secrets out of source control (.env + .gitignore).             |
+
+
 You may go back and edit your answers in the table as you answer these questions:
 1. As we saw in Lab 5, large language models (LLMs) are trained on large parts of the internet. Are any popular LLMs trained on open source code like GitHub?
+
+
+Yes. Some popular code models have been trained on publicly available open-source code (e.g., models behind GitHub Copilot like Codex historically; code-focused models such as Code Llama use publicly available code corpora). Details vary by provider and model.
+
 2. If a programmer accidentally pushes their API key to GitHub, who are at least two potential unintended recipients of this data?
+
+
+Secret-scanning bots and malicious scrapers that monitor GitHub for exposed credentials.
+
+Anyone who clones/forks or views the repo (including future employers, classmates, or automated datasets that ingest public repos).
+(Also common leaks: CI logs, issue text, pasted stack traces, package registries.)
+
 3. How might we design our code to minimize the number of unintended recipients of that information? How might we redesign APIs to minimize the number of unintended recipients?
+
+
+Design code to minimize unintended recipients:
+
+Never hardcode keys. Load from environment variables or a secrets manager; keep .env out of Git.
+
+Don’t print or log keys; scrub stack traces.
+
+Use least-privilege, scope-limited, short-lived tokens; rotate regularly and set revocation.
+
+Put API calls behind a server/proxy so clients never see the key.
+
+Add pre-commit hooks/CI checks (secret scanners) and protect branches.
+
+Redesign APIs to help:
+
+Prefer OAuth/OIDC with short-lived, scoped access tokens (PKCE for public clients).
+
+Support keyless client auth via backend token exchange; proof-of-possession/mTLS; IP allowlists.
+
+Easy, immediate key revocation and granular scopes/rate limits by default.
